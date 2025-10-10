@@ -1,5 +1,6 @@
 pub mod config;
 pub mod contracts;
+pub mod contracts_client_erigon;
 mod error;
 
 #[cfg(test)]

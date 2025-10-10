@@ -32,3 +32,6 @@ rustflags = [
     "-Clink-arg=-Ttext=0x00200800",
     "-Cpanic=abort",
 ]
+
+[net]
+git-fetch-with-cli = true

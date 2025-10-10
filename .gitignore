@@ -1,3 +1,6 @@
+.idea/
+.vscode/
+
 target
 tests/kurtosis
 tests/tmp
