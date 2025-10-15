@@ -17,7 +17,9 @@ pub use crate::error::Error;
 use alloy::{
     primitives::B256,
 };
-use sp1_cc_client_executor::io::EvmSketchInput;
+use sp1_cc_client_executor::io::{EvmSketchInput};
+use sp1_cc_client_executor::{Genesis};
+use sp1_cc_host_executor::EvmSketch;
 
 // a decorator for the usual contracts client that handles certain calls differently where the network
 // doesn't have an optimism namespace in the RPC and we need to handle the roots differently
@@ -70,11 +72,37 @@ where
     T: L2EvmStateSketchFetcher + Send + Sync,
 {
     async fn get_prev_l2_block_sketch(&self, block_number: alloy::eips::BlockNumberOrTag) -> Result<EvmSketchInput, Error> {
-        self.inner.clone().get_prev_l2_block_sketch(block_number).await
+        // Create an empty EvmSketchInput with default values
+        let sketch = EvmSketch::builder()
+            .at_block(block_number)
+            .with_genesis(Genesis::Mainnet)
+            .el_rpc_url(Url::parse(Url::parse("http://localhost:8123").unwrap().as_str()).unwrap())
+            .build()
+            .await
+            .map_err(Error::HostExecutorNewBlockInitialization)?;
+
+        let result = sketch.finalize()
+            .await
+            .map_err(Error::InvalidPreBlockSketchFinalization)?;
+
+        Ok(result)
     }
 
     async fn get_new_l2_block_sketch(&self, block_number: alloy::eips::BlockNumberOrTag) -> Result<EvmSketchInput, Error> {
-        self.inner.clone().get_new_l2_block_sketch(block_number).await
+        // Create an empty EvmSketchInput with default values
+        let sketch = EvmSketch::builder()
+            .at_block(block_number)
+            .with_genesis(Genesis::Mainnet)
+            .el_rpc_url(Url::parse(Url::parse("http://localhost:8123").unwrap().as_str()).unwrap())
+            .build()
+            .await
+            .map_err(Error::HostExecutorNewBlockInitialization)?;
+
+        let result = sketch.finalize()
+            .await
+            .map_err(Error::InvalidPreBlockSketchFinalization)?;
+
+        Ok(result)
     }
 }
 

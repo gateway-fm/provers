@@ -124,8 +124,8 @@ impl From<&FepInputs> for AggregationProofPublicValues {
     fn from(inputs: &FepInputs) -> Self {
         Self {
             l1_head: inputs.l1_head.0.into(),
-            l2_pre_root: inputs.compute_l2_pre_root().into(),
-            l2_post_root: inputs.compute_claim_root().into(),
+            l2_pre_root: inputs.prev_state_root.0.into(),
+            l2_post_root: inputs.new_state_root.0.into(),
             l2_block_number: inputs.claim_block_num.into(),
             rollup_config_hash: inputs.rollup_config_hash.0.into(),
             multi_block_vkey: inputs.range_vkey_commitment.into(),
@@ -151,8 +151,8 @@ sol! {
 impl From<&FepInputs> for AggchainParamsValues {
     fn from(inputs: &FepInputs) -> Self {
         Self {
-            l2_pre_root: inputs.compute_l2_pre_root().into(),
-            claim_root: inputs.compute_claim_root().into(),
+            l2_pre_root: inputs.prev_state_root.0.into(),
+            claim_root: inputs.new_state_root.0.into(),
             claim_block_num: U256::from(inputs.claim_block_num),
             rollup_config_hash: inputs.rollup_config_hash.0.into(),
             optimistic_mode: inputs.optimistic_mode() == OptimisticMode::Ecdsa,
@@ -311,6 +311,7 @@ pub(crate) fn compute_output_root(
     withdrawal_storage_root: [u8; 32],
     block_hash: [u8; 32],
 ) -> ClaimRoot {
+    // ClaimRoot(state_root.into())
     ClaimRoot(keccak256_combine([
         OUTPUT_ROOT_VERSION,
         state_root,
