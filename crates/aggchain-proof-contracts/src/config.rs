@@ -16,7 +16,7 @@ const GLOBAL_EXIT_ROOT_MANAGER_L2_SOVEREIGN_CHAIN_ADDRESS: Address =
 const POLYGON_ROLLUP_MANAGER: Address = address!("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e");
 
 /// Default random address just for the static call caller address.
-const STATIC_CALL_CALLER_ADDRESS: Address = address!("0x39027D57969aD59161365e0bbd53D2F63eE5AAA6");
+const STATIC_CALL_CALLER_ADDRESS: Address = address!("0xe859276098f208D003ca6904C6cC26629Ee364Ce");
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 #[serde(rename_all = "kebab-case")]

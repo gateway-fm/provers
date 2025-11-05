@@ -109,7 +109,9 @@ impl AggchainProofService {
             ErigonContractsClient::new(
                 contract_l1_client.clone(),
                 config.aggchain_proof_builder.contracts.l2_execution_layer_rpc_endpoint.clone(),
+                config.aggchain_proof_builder.contracts.clone(),
             )
+            .await
             .map_err(Error::ContractsClientInitFailed)?,
         );
 

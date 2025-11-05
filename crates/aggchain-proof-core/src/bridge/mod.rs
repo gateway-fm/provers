@@ -187,6 +187,7 @@ impl BridgeConstraintsInput {
     fn verify_ger_hash_chains(&self) -> Result<(), BridgeConstraintsError> {
         // Verify the hash chain on inserted GER
         {
+            println!("fetch hash chains");
             let hash_chain_type = HashChainType::InsertedGER;
             let (prev_hash_chain, new_hash_chain): (Digest, Digest) = self
                 .fetch_hash_chains(
@@ -196,6 +197,7 @@ impl BridgeConstraintsInput {
                 )
                 .map(|(prev, new)| (prev.0.into(), new.0.into()))?;
 
+            println!("validate hash chains");
             self.validate_hash_chain(
                 &self.bridge_witness.raw_inserted_gers,
                 prev_hash_chain,
@@ -399,11 +401,16 @@ impl BridgeConstraintsInput {
 
     /// Verify the bridge state.
     pub fn verify(&self) -> Result<(), BridgeConstraintsError> {
+        println!("Verifying bridge constraints...");
         self.verify_ger_hash_chains()?;
         let bridge_address = self.fetch_bridge_address()?;
+        println!("Verifying claims hash chains");
         self.verify_claims_hash_chains(bridge_address)?;
+        println!("Verifying new local exit root");
         self.verify_new_ler(bridge_address)?;
+        println!("Verifying constrained global indices");
         self.verify_constrained_global_indices()?;
+        println!("Verifying inserted GERs");
         self.verify_inserted_gers()
     }
 
@@ -420,6 +427,7 @@ impl BridgeConstraintsInput {
             .fold(prev_hash_chain, |acc, &hash| keccak256_combine([acc, hash]));
 
         if rebuilt_hash_chain != new_hash_chain {
+            println!("rebuilt hash chain != new hash chains, {} {}", rebuilt_hash_chain, new_hash_chain);
             eprintln!(
                 "block_hash. prev: {:?}, new: {:?}",
                 self.prev_l2_block_hash, self.new_l2_block_hash

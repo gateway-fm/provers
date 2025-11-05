@@ -33,6 +33,7 @@ pub struct AggchainProofWitness {
 impl AggchainProofWitness {
     pub fn verify_aggchain_inputs(&self) -> Result<AggchainProofPublicValues, ProofError> {
         // Verify the FEP proof or ECDSA signature.
+        println!("Verifying info root stuff");
         self.fep.verify(
             self.l1_info_root,
             self.new_local_exit_root,
