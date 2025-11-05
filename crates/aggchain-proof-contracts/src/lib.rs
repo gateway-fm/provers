@@ -333,19 +333,19 @@ async fn host_execute<C: SolCall, P: Provider<AnyNetwork> + Clone, PT: Primitive
     stage: StaticCallStage,
 ) -> Result<(), Error> {
 
-    let _ = sketch
-        .call(contract_address, caller_address, calldata);
+    // let _ = sketch
+    //     .call(contract_address, caller_address, calldata);
 
-    // let output_bytes = sketch
-    //     .call_raw(&ContractInput::new_call(
-    //         contract_address,
-    //         caller_address.into(),
-    //         calldata,
-    //     ))
-    //     .await
-    //     .map_err(|source| Error::InvalidHostStaticCall { source, stage })?;
-    //
-    // debug!("output bytes for static call at stage {stage:?}: {output_bytes:?}");
+    let output_bytes = sketch
+        .call_raw(&ContractInput::new_call(
+            contract_address,
+            caller_address.into(),
+            calldata,
+        ))
+        .await
+        .map_err(|source| Error::InvalidHostStaticCall { source, stage })?;
+
+    debug!("output bytes for static call at stage {stage:?}: {output_bytes:?}");
 
     Ok(())
 }
