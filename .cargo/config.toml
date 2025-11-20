@@ -33,5 +33,3 @@ rustflags = [
     "-Cpanic=abort",
 ]
 
-[net]
-git-fetch-with-cli = true

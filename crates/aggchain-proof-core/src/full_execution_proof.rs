@@ -308,16 +308,16 @@ impl FepInputs {
 /// https://specs.optimism.io/protocol/proposals.html#l2-output-commitment-construction
 pub(crate) fn compute_output_root(
     state_root: [u8; 32],
-    withdrawal_storage_root: [u8; 32],
-    block_hash: [u8; 32],
+    _withdrawal_storage_root: [u8; 32],
+    _block_hash: [u8; 32],
 ) -> ClaimRoot {
-    // ClaimRoot(state_root.into())
-    ClaimRoot(keccak256_combine([
-        OUTPUT_ROOT_VERSION,
-        state_root,
-        withdrawal_storage_root,
-        block_hash,
-    ]))
+    ClaimRoot(state_root.into())
+    // ClaimRoot(keccak256_combine([
+    //     OUTPUT_ROOT_VERSION,
+    //     state_root,
+    //     withdrawal_storage_root,
+    //     block_hash,
+    // ]))
 }
 
 #[cfg(test)]
