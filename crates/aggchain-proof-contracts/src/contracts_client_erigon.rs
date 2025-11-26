@@ -1,26 +1,28 @@
+use crate::config::AggchainProofContractsConfig;
+use crate::contracts::{
+    GetTrustedSequencerAddress, GlobalExitRootManagerL2SovereignChain,
+    GlobalExitRootManagerL2SovereignChainRpcClient, L1OpSuccinctConfigFetcher,
+    L2EvmStateSketchFetcher, L2LocalExitRootFetcher, L2OutputAtBlock, L2OutputAtBlockFetcher,
+    OpSuccinctConfig, PolygonZkevmBridgeV2, ZkevmBridgeRpcClient,
+};
+pub use crate::error::Error;
+use crate::{config, host_execute};
+use aggchain_proof_core::bridge::static_call::{HashChainType, StaticCallStage};
+use aggchain_proof_core::bridge::BridgeL2SovereignChain;
+use agglayer_interop::types::Digest;
+use agglayer_primitives::Address;
+use alloy::primitives::B256;
+use eyre::Context as _;
+use jsonrpsee::{core::client::ClientT, http_client::HttpClient, rpc_params};
+use prover_alloy::{build_alloy_fill_provider, AlloyFillProvider};
+use prover_executor::sp1_async;
+use sp1_cc_client_executor::io::EvmSketchInput;
+use sp1_cc_client_executor::Genesis;
+use sp1_cc_host_executor::EvmSketch;
 use std::panic::AssertUnwindSafe;
 use std::str::FromStr;
 use std::sync::Arc;
-use agglayer_interop::types::Digest;
-use agglayer_primitives::Address;
-use jsonrpsee::{core::client::ClientT, http_client::HttpClient, rpc_params};
 use url::Url;
-use crate::contracts::{L1OpSuccinctConfigFetcher, L2LocalExitRootFetcher, L2OutputAtBlockFetcher, L2EvmStateSketchFetcher, GetTrustedSequencerAddress, L2OutputAtBlock, OpSuccinctConfig, GlobalExitRootManagerL2SovereignChain, GlobalExitRootManagerL2SovereignChainRpcClient, ZkevmBridgeRpcClient, PolygonZkevmBridgeV2};
-pub use crate::error::Error;
-use alloy::{
-    primitives::B256,
-};
-use eyre::Context as _;
-use sp1_cc_client_executor::io::{EvmSketchInput};
-use sp1_cc_client_executor::{Genesis};
-use sp1_cc_host_executor::EvmSketch;
-use aggchain_proof_core::bridge::BridgeL2SovereignChain;
-use aggchain_proof_core::bridge::static_call::{HashChainType, StaticCallStage};
-use prover_alloy::{build_alloy_fill_provider, AlloyFillProvider};
-use prover_executor::sp1_async;
-use crate::config::AggchainProofContractsConfig;
-use crate::contracts::GlobalExitRootManagerL2SovereignChain::GlobalExitRootManagerL2SovereignChainCalls;
-use crate::{config, host_execute};
 
 // a decorator for the usual contracts client that handles certain calls differently where the network
 // doesn't have an optimism namespace in the RPC and we need to handle the roots differently
@@ -35,8 +37,14 @@ pub struct ErigonContractsClient<T> {
 }
 
 impl<T> ErigonContractsClient<T>
-where T: Send + Sync + 'static {
-    pub async fn new(inner: Arc<T>, l2endpoint: Url, config: AggchainProofContractsConfig) -> Result<Self, Error> {
+where
+    T: Send + Sync + 'static,
+{
+    pub async fn new(
+        inner: Arc<T>,
+        l2endpoint: Url,
+        config: AggchainProofContractsConfig,
+    ) -> Result<Self, Error> {
         let l2_client = Arc::new(
             HttpClient::builder()
                 .build(l2endpoint)
@@ -86,7 +94,6 @@ where
     }
 }
 
-
 #[async_trait::async_trait]
 impl<T> L1OpSuccinctConfigFetcher for ErigonContractsClient<T>
 where
@@ -102,7 +109,10 @@ impl<T> L2EvmStateSketchFetcher for ErigonContractsClient<T>
 where
     T: L2EvmStateSketchFetcher + Send + Sync,
 {
-    async fn get_prev_l2_block_sketch(&self, block_number: alloy::eips::BlockNumberOrTag) -> Result<EvmSketchInput, Error> {
+    async fn get_prev_l2_block_sketch(
+        &self,
+        block_number: alloy::eips::BlockNumberOrTag,
+    ) -> Result<EvmSketchInput, Error> {
         sp1_async(AssertUnwindSafe(async move {
             let sketch = EvmSketch::builder()
                 .at_block(block_number)
@@ -166,7 +176,10 @@ where
         .map_err(Error::Other)?
     }
 
-    async fn get_new_l2_block_sketch(&self, block_number: alloy::eips::BlockNumberOrTag) -> Result<EvmSketchInput, Error> {
+    async fn get_new_l2_block_sketch(
+        &self,
+        block_number: alloy::eips::BlockNumberOrTag,
+    ) -> Result<EvmSketchInput, Error> {
         sp1_async(AssertUnwindSafe(async move {
             let sketch = EvmSketch::builder()
                 .at_block(block_number)
@@ -188,7 +201,7 @@ where
                 GlobalExitRootManagerL2SovereignChain::bridgeAddressCall {},
                 StaticCallStage::BridgeAddress,
             )
-                .await?;
+            .await?;
 
             // Static call on the new LER
             host_execute(
@@ -198,7 +211,7 @@ where
                 BridgeL2SovereignChain::getRootCall {},
                 StaticCallStage::NewLer,
             )
-                .await?;
+            .await?;
 
             // Static calls on the hash chains
             {
@@ -209,7 +222,7 @@ where
                     GlobalExitRootManagerL2SovereignChain::insertedGERHashChainCall {},
                     StaticCallStage::NewHashChain(HashChainType::InsertedGER),
                 )
-                    .await?;
+                .await?;
 
                 host_execute(
                     caller_address,
@@ -218,7 +231,7 @@ where
                     GlobalExitRootManagerL2SovereignChain::removedGERHashChainCall {},
                     StaticCallStage::NewHashChain(HashChainType::RemovedGER),
                 )
-                    .await?;
+                .await?;
 
                 host_execute(
                     caller_address,
@@ -227,7 +240,7 @@ where
                     BridgeL2SovereignChain::claimedGlobalIndexHashChainCall {},
                     StaticCallStage::NewHashChain(HashChainType::ClaimedGlobalIndex),
                 )
-                    .await?;
+                .await?;
 
                 host_execute(
                     caller_address,
@@ -236,10 +249,11 @@ where
                     BridgeL2SovereignChain::unsetGlobalIndexHashChainCall {},
                     StaticCallStage::NewHashChain(HashChainType::UnsetGlobalIndex),
                 )
-                    .await?;
+                .await?;
             }
 
-            let result = sketch.finalize()
+            let result = sketch
+                .finalize()
                 .await
                 .map_err(Error::InvalidPreBlockSketchFinalization)?;
 
@@ -298,7 +312,12 @@ where
 }
 
 // Implement the AggchainContractsClient marker trait
-impl<T> crate::AggchainContractsClient for ErigonContractsClient<T>
-where
-    T: L2LocalExitRootFetcher + L2OutputAtBlockFetcher + L1OpSuccinctConfigFetcher + L2EvmStateSketchFetcher + Send + Sync,
-{}
+impl<T> crate::AggchainContractsClient for ErigonContractsClient<T> where
+    T: L2LocalExitRootFetcher
+        + L2OutputAtBlockFetcher
+        + L1OpSuccinctConfigFetcher
+        + L2EvmStateSketchFetcher
+        + Send
+        + Sync
+{
+}

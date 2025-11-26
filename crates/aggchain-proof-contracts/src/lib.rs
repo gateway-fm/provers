@@ -339,7 +339,7 @@ async fn host_execute<C: SolCall, P: Provider<AnyNetwork> + Clone, PT: Primitive
     let output_bytes = sketch
         .call_raw(&ContractInput::new_call(
             contract_address,
-            caller_address.into(),
+            caller_address,
             calldata,
         ))
         .await
