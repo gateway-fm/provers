@@ -6,7 +6,9 @@ use std::{
 };
 
 use aggchain_proof_builder::{AggchainProofBuilder, FepVerification};
-use aggchain_proof_contracts::{AggchainContractsRpcClient, contracts_client_erigon::ErigonContractsClient};
+use aggchain_proof_contracts::{
+    contracts_client_erigon::ErigonContractsClient, AggchainContractsRpcClient,
+};
 use aggchain_proof_types::{AggchainProofInputs, OptimisticAggchainProofInputs};
 use agglayer_interop::types::Digest;
 use alloy_primitives::B256;
@@ -16,6 +18,7 @@ use proposer_service::ProposerService;
 use tower::{util::BoxCloneService, Service as _, ServiceExt as _};
 use tracing::debug;
 use unified_bridge::AggchainProofPublicValues;
+
 use crate::{
     config::AggchainProofServiceConfig, custom_chain_data::compute_custom_chain_data, error::Error,
 };
@@ -108,7 +111,11 @@ impl AggchainProofService {
         let contract_l1_client_erigon = Arc::new(
             ErigonContractsClient::new(
                 contract_l1_client.clone(),
-                config.aggchain_proof_builder.contracts.l2_execution_layer_rpc_endpoint.clone(),
+                config
+                    .aggchain_proof_builder
+                    .contracts
+                    .l2_execution_layer_rpc_endpoint
+                    .clone(),
                 config.aggchain_proof_builder.contracts.clone(),
             )
             .await
