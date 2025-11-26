@@ -332,7 +332,6 @@ async fn host_execute<C: SolCall, P: Provider<AnyNetwork> + Clone, PT: Primitive
     calldata: C,
     stage: StaticCallStage,
 ) -> Result<(), Error> {
-
     // let _ = sketch
     //     .call(contract_address, caller_address, calldata);
 

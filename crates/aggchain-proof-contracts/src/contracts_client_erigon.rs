@@ -1,14 +1,9 @@
-use crate::config::AggchainProofContractsConfig;
-use crate::contracts::{
-    GetTrustedSequencerAddress, GlobalExitRootManagerL2SovereignChain,
-    GlobalExitRootManagerL2SovereignChainRpcClient, L1OpSuccinctConfigFetcher,
-    L2EvmStateSketchFetcher, L2LocalExitRootFetcher, L2OutputAtBlock, L2OutputAtBlockFetcher,
-    OpSuccinctConfig, PolygonZkevmBridgeV2, ZkevmBridgeRpcClient,
+use std::{panic::AssertUnwindSafe, str::FromStr, sync::Arc};
+
+use aggchain_proof_core::bridge::{
+    static_call::{HashChainType, StaticCallStage},
+    BridgeL2SovereignChain,
 };
-pub use crate::error::Error;
-use crate::{config, host_execute};
-use aggchain_proof_core::bridge::static_call::{HashChainType, StaticCallStage};
-use aggchain_proof_core::bridge::BridgeL2SovereignChain;
 use agglayer_interop::types::Digest;
 use agglayer_primitives::Address;
 use alloy::primitives::B256;
@@ -16,16 +11,27 @@ use eyre::Context as _;
 use jsonrpsee::{core::client::ClientT, http_client::HttpClient, rpc_params};
 use prover_alloy::{build_alloy_fill_provider, AlloyFillProvider};
 use prover_executor::sp1_async;
-use sp1_cc_client_executor::io::EvmSketchInput;
-use sp1_cc_client_executor::Genesis;
+use sp1_cc_client_executor::{io::EvmSketchInput, Genesis};
 use sp1_cc_host_executor::EvmSketch;
-use std::panic::AssertUnwindSafe;
-use std::str::FromStr;
-use std::sync::Arc;
 use url::Url;
 
-// a decorator for the usual contracts client that handles certain calls differently where the network
-// doesn't have an optimism namespace in the RPC and we need to handle the roots differently
+pub use crate::error::Error;
+use crate::{
+    config,
+    config::AggchainProofContractsConfig,
+    contracts::{
+        GetTrustedSequencerAddress, GlobalExitRootManagerL2SovereignChain,
+        GlobalExitRootManagerL2SovereignChain::GlobalExitRootManagerL2SovereignChainCalls,
+        GlobalExitRootManagerL2SovereignChainRpcClient, L1OpSuccinctConfigFetcher,
+        L2EvmStateSketchFetcher, L2LocalExitRootFetcher, L2OutputAtBlock, L2OutputAtBlockFetcher,
+        OpSuccinctConfig, PolygonZkevmBridgeV2, ZkevmBridgeRpcClient,
+    },
+    host_execute,
+};
+
+// a decorator for the usual contracts client that handles certain calls
+// differently where the network doesn't have an optimism namespace in the RPC
+// and we need to handle the roots differently
 #[derive(Clone)]
 pub struct ErigonContractsClient<T> {
     inner: Arc<T>,
