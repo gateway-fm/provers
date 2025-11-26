@@ -42,6 +42,8 @@ mod tests;
 
 pub const AGGREGATION_ELF: &[u8] = proposer_elfs::aggregation::ELF;
 
+pub const ERIGON_ELF: &[u8] = include_bytes!("../cdk-aggregation");
+
 #[derive(Educe)]
 #[educe(Clone(bound()))]
 pub struct ProposerService<L1Rpc, ProposerClient> {
@@ -71,7 +73,7 @@ where
             .await?,
         );
 
-        let aggregation_vkey = Self::extract_aggregation_vkey(&prover, AGGREGATION_ELF)
+        let aggregation_vkey = Self::extract_aggregation_vkey(&prover, ERIGON_ELF)
             .await
             .context("Retrieving aggregation vkey")
             .map_err(Error::Other)?;

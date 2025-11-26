@@ -1,5 +1,6 @@
 pub mod config;
 pub mod contracts;
+pub mod contracts_client_erigon;
 mod error;
 
 #[cfg(test)]
@@ -167,7 +168,7 @@ where
         // sounds suboptimal
         sp1_async(AssertUnwindSafe(async move {
             let sketch = EvmSketch::builder()
-                .optimism()
+                // .optimism()
                 .at_block(prev_l2_block)
                 .with_genesis(self.evm_sketch_genesis.clone())
                 .el_rpc_url(self.l2_root_provider_endpoint.clone())
@@ -175,7 +176,7 @@ where
                 .await
                 .map_err(Error::HostExecutorPreBlockInitialization)?;
 
-            let caller_address = self.static_call_caller_address;
+            let caller_address = *self.static_call_caller_address.as_alloy();
             let ger_address = *self.global_exit_root_manager_l2.address();
             let bridge_address = *self.polygon_zkevm_bridge_v2.address();
 
@@ -239,7 +240,7 @@ where
         // sounds suboptimal
         sp1_async(AssertUnwindSafe(async move {
             let sketch = EvmSketch::builder()
-                .optimism()
+                // .optimism()
                 .at_block(new_l2_block)
                 .with_genesis(self.evm_sketch_genesis.clone())
                 .el_rpc_url(self.l2_root_provider_endpoint.clone())
@@ -247,7 +248,7 @@ where
                 .await
                 .map_err(Error::HostExecutorNewBlockInitialization)?;
 
-            let caller_address = self.static_call_caller_address;
+            let caller_address = *self.static_call_caller_address.as_alloy();
             let ger_address = *self.global_exit_root_manager_l2.address();
             let bridge_address = *self.polygon_zkevm_bridge_v2.address();
 
@@ -325,12 +326,16 @@ where
 }
 
 async fn host_execute<C: SolCall, P: Provider<AnyNetwork> + Clone, PT: Primitives>(
-    caller_address: Address,
+    caller_address: alloy::primitives::Address,
     contract_address: alloy::primitives::Address,
     sketch: &EvmSketch<P, PT>,
     calldata: C,
     stage: StaticCallStage,
 ) -> Result<(), Error> {
+
+    // let _ = sketch
+    //     .call(contract_address, caller_address, calldata);
+
     let output_bytes = sketch
         .call_raw(&ContractInput::new_call(
             contract_address,
