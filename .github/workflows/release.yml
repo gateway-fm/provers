@@ -3,9 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - main
-  release:
-    types: [created]
+      - never-never-never
   workflow_dispatch:
 
 concurrency:
