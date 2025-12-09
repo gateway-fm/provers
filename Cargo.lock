@@ -6117,6 +6117,7 @@ dependencies = [
  "prover-elf-utils",
  "rstest",
  "sp1-sdk",
+ "tracing",
 ]
 
 [[package]]

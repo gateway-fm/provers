@@ -42,7 +42,7 @@ mod tests;
 
 pub const AGGREGATION_ELF: &[u8] = proposer_elfs::aggregation::ELF;
 
-pub const ERIGON_ELF: &[u8] = include_bytes!("../cdk-aggregation");
+pub const ERIGON_ELF: &[u8] = include_bytes!("../aggregation-elf");
 
 #[derive(Educe)]
 #[educe(Clone(bound()))]

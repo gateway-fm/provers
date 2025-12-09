@@ -1,6 +1,6 @@
 fn main() {
     let erigon_bytes = include_bytes!("./cdk-range");
-    let erigon_agg = include_bytes!("./cdk-aggregation");
+    let erigon_agg = include_bytes!("./aggregation-elf");
 
     color_eyre::install().unwrap();
     prover_elf_utils::ElfInfo::writing_to("vkeys_raw.rs")
