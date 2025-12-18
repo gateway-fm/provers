@@ -13,6 +13,7 @@ prover-elf-utils.workspace = true
 aggkit-prover-types = { workspace = true, features = ["sp1"] }
 
 op-succinct-elfs.workspace = true
+tracing = "0.1.41"
 
 [dev-dependencies]
 alloy-primitives.workspace = true

@@ -372,7 +372,7 @@ impl Service<Request> for NetworkExecutor {
 
             let proof = proof_request
                 .timeout(timeout)
-                .strategy(FulfillmentStrategy::Reserved)
+                .strategy(FulfillmentStrategy::Hosted)
                 .run_async()
                 .await
                 .map_err(|error| Error::ProverFailed(error.to_string()))?;

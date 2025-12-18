@@ -21,7 +21,8 @@ pub mod aggregation {
 }
 
 pub mod range {
-    pub use op_succinct_elfs::RANGE_ELF_EMBEDDED as ELF;
+    // pub use op_succinct_elfs::RANGE_ELF_EMBEDDED as ELF;
+    pub const ELF: &[u8] = include_bytes!("../cdk-range");
     pub use vkeys_raw::range::VKEY_COMMITMENT;
 
     use crate::{vkeys_raw, HashU32, LazyVerifyingKey, VKeyHash};
