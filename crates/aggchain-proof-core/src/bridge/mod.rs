@@ -689,7 +689,7 @@ mod tests {
                     serde_json::from_str(&json_clean).expect("Failed to parse genesis JSON");
 
                 EvmSketch::builder()
-                    .optimism()
+                    // .optimism()
                     .at_block(BlockNumberOrTag::Number(block_number))
                     .with_genesis(Genesis::Custom(genesis_parsed.config))
                     .el_rpc_url(rpc_url_l2.clone())
