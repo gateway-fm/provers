@@ -21,7 +21,6 @@ use crate::{
     config::AggchainProofContractsConfig,
     contracts::{
         GetTrustedSequencerAddress, GlobalExitRootManagerL2SovereignChain,
-        GlobalExitRootManagerL2SovereignChain::GlobalExitRootManagerL2SovereignChainCalls,
         GlobalExitRootManagerL2SovereignChainRpcClient, L1OpSuccinctConfigFetcher,
         L2EvmStateSketchFetcher, L2LocalExitRootFetcher, L2OutputAtBlock, L2OutputAtBlockFetcher,
         OpSuccinctConfig, PolygonZkevmBridgeV2, ZkevmBridgeRpcClient,
