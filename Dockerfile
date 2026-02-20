@@ -54,7 +54,7 @@ COPY --link Cargo.lock Cargo.lock
 RUN cargo build --release --bin aggkit-prover
 
 
-FROM --platform=${BUILDPLATFORM} debian:12-slim
+FROM --platform=${BUILDPLATFORM} docker.aikido.io/4fd7bbf03eb846e59bddd0255285b389bcf3/debian:12-slim@sha256:d8ebcb8fcb24521d03228e78069fbbab745f900f220bddd05913c20ccd0eacd4
 
 RUN apt-get update && apt-get install -y ca-certificates
 COPY --from=builder /app/target/release/aggkit-prover /usr/local/bin/
